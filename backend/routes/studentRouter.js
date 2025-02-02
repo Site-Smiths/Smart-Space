@@ -3,7 +3,7 @@ const router = express.Router();
 const studentModel = require('../models/student');
 const { isLoggedIn } = require('../middleware/isLoggedIn');
 
-// Fetch student profile
+
 router.get('/profile', async (req, res) => {
   try {
     const student = await studentModel.findOne({ user: req.user.userid }).populate('reviews.mentor');
@@ -14,8 +14,6 @@ router.get('/profile', async (req, res) => {
   }
 });
 
-// Update student profile (location and course
-// Update student profile (location and courses)
 router.post('/updateProfile',  async (req, res) => {
   try {
     const { location, courses } = req.body;

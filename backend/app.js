@@ -32,9 +32,9 @@ app.use(cors({
   credentials: true, 
 }));
 
-app.get("/", (req, res) => {
-  res.render("register");
-});
+// app.get("/", (req, res) => {
+//   res.render("register");
+// });
 
 app.post("/register", async (req, res) => {
   try {
@@ -65,9 +65,9 @@ app.post("/register", async (req, res) => {
 
 
 // login route
-app.get('/login', async (req, res) => {
-  res.render("login");
-})
+// app.get('/login', async (req, res) => {
+//   res.render("login");
+// })
 
 app.post('/login', async (req, res) => {
     
@@ -77,6 +77,16 @@ app.post('/login', async (req, res) => {
   bcrypt.compare(password, user.password, async function(err, result) {
     if(result){
       let token = jwt.sign({email:email, userid:user._id,role:role},"shhh")
+
+      if (role === "mentor") {
+        let mentor = await mentorModel.findOne({ user: user._id });
+        if (!mentor) {
+          return res.status(200).json({
+            message: "Please complete your registration.",
+            redirectTo: "/mentor/registration" 
+          });
+        }
+      }
       res.cookie('token', token, { httpOnly: true }).status(200).json({ message: "Login successful",
          token,
         role,

@@ -1,6 +1,5 @@
-const jwt = require("jsonwebtoken");
-const userModel = require("../models/user");
 const jwtSecret = "shh";
+
 function isLoggedIn(req, res, next) {
   const token = req.cookies.token;
   if (!token) {

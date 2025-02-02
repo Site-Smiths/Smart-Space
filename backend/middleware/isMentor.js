@@ -1,9 +1,14 @@
 async function isMentor(req, res, next) {
-    const user = await userModel.findById(req.params.userId);
-    if (!user || user.role !== "mentor") {
-        return res.redirect("/register");
+    try {
+        const user = await userModel.findById(req.params.userId);
+        if (!user || user.role !== "mentor") {
+            return res.status(403).json({ message: "Access forbidden: You must be a mentor" });
+        }
+        req.user = user; 
+        next();
+    } catch (error) {
+        res.status(500).json({ message: "Something went wrong" });
     }
-    req.user = user; 
-    next();
 }
-module.exports =  { isMentor };
+
+module.exports = { isMentor };
