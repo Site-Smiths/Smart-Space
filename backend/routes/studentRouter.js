@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const studentModel = require('../models/student');
-const { isLoggedIn } = require('../middleware/auth');
+const { isLoggedIn } = require('../middleware/isLoggedIn');
 
 // Fetch student profile
-router.get('/profile', isLoggedIn, async (req, res) => {
+router.get('/profile', async (req, res) => {
   try {
     const student = await studentModel.findOne({ user: req.user.userid }).populate('reviews.mentor');
     if (!student) return res.status(404).send('Student not found');
@@ -14,28 +14,7 @@ router.get('/profile', isLoggedIn, async (req, res) => {
   }
 });
 
-// Update student profile (location and courses)
-router.post('/updateProfile', isLoggedIn, async (req, res) => {
-  try {
-    const { location, courses } = req.body;
-    const updatedProfile = {};
-
-    if (location) updatedProfile.location = location;
-    if (courses && Array.isArray(courses)) updatedProfile.courses = courses;
-
-    const student = await studentModel.findOneAndUpdate(
-      { user: req.user.userid },
-      updatedProfile,
-      { new: true }
-    );
-
-    if (!student) return res.status(404).send('Student not found');
-    res.redirect('/student/profile');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
-  }
-});
+// Update student profile (location and course
 
 // Add a review for a mentor
 // router.post('/reviews', isLoggedIn, async (req, res) => {
