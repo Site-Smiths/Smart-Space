@@ -1,5 +1,6 @@
-const jwtSecret = "shh";
-
+const jwt = require("jsonwebtoken");
+const userModel = require('../models/user');
+const jwtSecret = "myverysec";
 function isLoggedIn(req, res, next) {
   const token = req.cookies.token;
   if (!token) {
@@ -9,7 +10,7 @@ function isLoggedIn(req, res, next) {
     if (err) {
       return res.status(401).send("Unauthorized: Invalid token");
     }
-    req.user = decoded;
+    req.user = { userId: decoded.userid };
     const user = await userModel.findById(decoded.userid);
     if (!user) {
       return res.status(401).send("Unauthorized: User not found");
