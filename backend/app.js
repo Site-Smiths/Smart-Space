@@ -3,6 +3,7 @@ const app = express();
 const db = require("./config/db");
 const userModel = require("./models/user");
 const mentorModel = require("./models/mentor");
+const studentModel = require("./models/student");
 
 const crypto = require("crypto");
 const jwtSecret = "myverysec";
@@ -12,7 +13,6 @@ const path = require("path");
 const jwt = require("jsonwebtoken");
 
 const  mentorRouter = require('./routes/mentorRouter');
-const mentor = require("./models/mentor");
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
