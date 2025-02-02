@@ -1,15 +1,50 @@
 const mongoose = require('mongoose');
+const userModel = require('./user'); 
 
 const mentorSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' }, 
-    bio: { type: String, required: true },
-    subjects: { type: [String], required: true },
-    availability: { type: [String], required: true }, 
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user', 
+        required: true
+    },
+    profilePic: {
+        type: String,
+        default: "default-profile-pic.jpg",
+    },
+    qualifications: { 
+        type: [String], 
+        default: [] 
+    },
+    subjects: { 
+        type: [String], 
+        default: [] 
+    },
+    hourlyRate: {
+        type: Number,
+        default: 300,
+    },
+    // availability: {
+    //     type: Map,
+    //     of: String,
+    //     default: {},
+    // },
+    bio: {
+        type: String,
+        default: "",
+    },
+    reviews: [{
+        reviewer: { type: String, required: true },
+        rating: { type: Number, required: true, min: 1, max: 5 },
+        comment: { type: String, required: true },
+    }],
     location: {
-        type: { type: String, enum: ['Point'], default: 'Point' },
-        coordinates: { type: [Number], required: false }
+        type: String,
+        required: true,
+    },
+    dateAdded: {
+        type: Date,
+        default: Date.now,
     },
 });
 
-mentorSchema.index({ location: '2dsphere' }); 
-module.exports = mongoose.model('Mentor', mentorSchema);
+module.exports = mongoose.model('mentor', mentorSchema);
