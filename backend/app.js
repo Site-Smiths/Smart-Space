@@ -12,7 +12,9 @@ const path = require("path");
 const jwt = require("jsonwebtoken");
 
 const  mentorRouter = require('./routes/mentorRouter');
-const mentor = require("./models/mentor");
+const studentRouter = require('./routes/studentRouter');
+
+
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
@@ -21,7 +23,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/mentor',mentorRouter)
-
+app.use('/student',studentRouter)
 
 app.get("/", (req, res) => {
   res.render("register");
@@ -49,7 +51,7 @@ app.post("/register", async (req, res) => {
       res.cookie("token", token);
 
       if(role === "student") {
-        res.render("/dashboard");
+        res.redirect("/student/profile");
       }
       else if(role === "mentor") {  
         res.redirect(`/mentor/register/${user._id}`);
@@ -73,7 +75,7 @@ app.post('/login', async (req, res) => {
     if(result){
       res.cookie('token', jwt.sign({email:email,userid:user._id},"shhhhhhhhh"));
       if(role === "student") {
-        res.render("/dashboard");
+        res.redirect("/student/profile");
       }
       else if(role === "mentor") {  
         let mentor = await mentorModel.findOne({user:user._id});
