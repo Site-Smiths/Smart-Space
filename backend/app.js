@@ -44,6 +44,28 @@ app.post("/register", async (req, res) => {
   });
 });
 
+// login route
+app.get('/login', async (req, res) => {
+  res.render("login");
+})
+
+app.post('/login', async (req, res) => {
+    
+  let {email,password}=req.body
+  let user = await usermodel.findOne({email});
+  if(!user)return res.send("something went wrong");
+  bcrypt.compare(password, user.password, function(err, result) {
+    if(result){
+      res.cookie('token', jwt.sign({email:email,userid:user._id},"shhhhhhhhh"));
+      res.redirect("/profile");
+     }
+    else
+     {
+     res.redirect('/login');
+     } 
+  })        
+});
+
 
 
 app.get("/profile/logout", async (req, res) => {
