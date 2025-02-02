@@ -1,15 +1,18 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://127.0.0.1:27017/SmartSpace');
-
-const userSchema =  mongoose.Schema({
+const userSchema = new mongoose.Schema({
     name: String,
-    email: String,
-    password: String,
-    profilePic: {
+    email: {
         type: String,
-        default: 'default.jpg'
+        required: true,
+        unique: true
     },
+    password: String,
+    role:{
+        type:String,
+        enum:["student","mentor"],
+        required:true
+    }
 });
 
 

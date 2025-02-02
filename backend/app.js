@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const db = require("./config/db");
 const userModel = require("./models/user");
 
 const crypto = require("crypto");
@@ -22,9 +23,9 @@ app.get("/", (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-  let { name, email, password, confirm_password } = req.body;
+  let { name, email, password, confirm_password,role} = req.body;
 
-  // if(password !== confirm_password) return res.send("Passwords do not match")
+  if(password !== confirm_password) return res.send("Passwords do not match")
 
   let user = await userModel.findOne({ email });
   if (user) return res.status(400).send("User already exists");
@@ -35,9 +36,10 @@ app.post("/register", async (req, res) => {
         name,
         email,
         password: hash,
+        role,
       });
       console.log(user._id);
-      let token = jwt.sign({ email: email, userid: user._id },"shh");
+      let token = jwt.sign({ email: email, userid: user._id ,role: role},"shh");
       res.cookie("token", token);
       res.render("profile");
     });
@@ -52,7 +54,7 @@ app.get('/login', async (req, res) => {
 app.post('/login', async (req, res) => {
     
   let {email,password}=req.body
-  let user = await usermodel.findOne({email});
+  let user = await userModel.findOne({email});
   if(!user)return res.send("something went wrong");
   bcrypt.compare(password, user.password, function(err, result) {
     if(result){
@@ -64,13 +66,6 @@ app.post('/login', async (req, res) => {
      res.redirect('/login');
      } 
   })        
-});
-
-
-
-app.get("/profile/logout", async (req, res) => {
-  res.clearCookie("token");
-  res.redirect("/");
 });
 
 function isLoggedIn(req, res, next) {
