@@ -39,7 +39,7 @@ const mentorSchema = new mongoose.Schema({
     }],
     location: {
         type: String,
-        required: true,
+        default: "",
     },
     dateAdded: {
         type: Date,

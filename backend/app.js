@@ -3,6 +3,7 @@ const app = express();
 const db = require("./config/db");
 const userModel = require("./models/user");
 const mentorModel = require("./models/mentor");
+const studentModel = require("./models/student");
 
 const crypto = require("crypto");
 const jwtSecret = "myverysec";
