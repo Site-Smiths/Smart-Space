@@ -11,7 +11,8 @@ const cookieParser = require("cookie-parser");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 
-const  mentorRouter = require('./routes/mentorRouter')
+const  mentorRouter = require('./routes/mentorRouter');
+const mentor = require("./models/mentor");
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
@@ -68,14 +69,15 @@ app.post('/login', async (req, res) => {
   let {email,password,role}=req.body
   let user = await userModel.findOne({email});
   if(!user)return res.send("something went wrong");
-  bcrypt.compare(password, user.password, function(err, result) {
+  bcrypt.compare(password, user.password, async function(err, result) {
     if(result){
       res.cookie('token', jwt.sign({email:email,userid:user._id},"shhhhhhhhh"));
       if(role === "student") {
         res.render("/dashboard");
       }
       else if(role === "mentor") {  
-        res.redirect(`/mentor/profile/${user._id}`);
+        let mentor = await mentorModel.findOne({user:user._id});
+        res.redirect(`/mentor/profile/${mentor._id}`);
       }
      }
     else
