@@ -1,38 +1,23 @@
-const express=require('express');
+const express = require('express');
 const router = express.Router();
 const userModel = require('../models/user');
 const mentorModel = require('../models/mentor');
-
-async function isMentor(req, res, next) {
-    const user = await userModel.findById(req.params.userId);
-    if (!user || user.role !== "mentor") {
-        return res.redirect("/register");
-    }
-    req.user = user; 
-    next();
-}
-
-router.get("/users/:userId",isMentor, async (req, res) => {
-    try {
-      const userId = req.params.userId;
-      const user = await userModel.findById(userId).select("-password");
-      if (!user) {
-        return res.status(404).send("User not found");
-      }
+const { isLoggedIn } = require('../middleware/isLoggedIn');  // Assuming this is the correct path to your middleware
+const { isMentor } = require('../middleware/isMentor');
+// Middleware to check if the user is a mentor
 
 
-      return res.status(200)
-    } catch (error) {
-      console.log(error);
-      res.status(500).send("Internal Server Error");
-      
-    }
-  });
-  
+// Mentor registration form (GET) - Only accessible to logged-in mentors
+router.get("/register/:userId", isLoggedIn, isMentor, async (req, res) => {
+    const userId = req.params.userId;
+    res.render("mentor-register", { userId });
+});
 
-  router.post("/register/:userId",isMentor, async (req, res) => {
-      const { profilePic, qualifications, subjects, hourlyRate, bio, location } = req.body;
-      if (!location) {
+// Handle mentor registration (POST) - Only accessible to logged-in mentors
+router.post("/register/:userId", isLoggedIn, isMentor, async (req, res) => {
+    const { profilePic, qualifications, subjects, hourlyRate, bio, location } = req.body;
+
+    if (!location) {
         return res.status(400).send("Location is required.");
       }
       const userId = req.params.userId;
@@ -66,6 +51,17 @@ router.get("/users/:userId",isMentor, async (req, res) => {
       }
   
   });
-  
 
-module.exports = router
+// View mentor's profile (GET) - Only accessible to logged-in users
+router.get("/profile/:mentorId", isLoggedIn, async (req, res) => {
+    const mentorId = req.params.mentorId;
+    const mentor = await mentorModel.findById(mentorId).populate("user");
+
+    if (!mentor) {
+        return res.status(404).send("Mentor not found");
+    }
+
+    res.render("mentor-profile", { mentor });
+});
+
+module.exports = router;
