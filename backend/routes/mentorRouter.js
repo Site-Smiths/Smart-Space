@@ -7,12 +7,21 @@ const { isLoggedIn } = require('../middleware/isLoggedIn');  // Assuming this is
 const { isMentor } = require('../middleware/isMentor');
 
 
-router.post("/register/:userId", isLoggedIn,async (req, res) => {
+router.post("/register/:userId", isLoggedIn, async (req, res) => {
   try {
       const { profilePic, qualifications, subjects, hourlyRate, bio, location } = req.body;
 
-      if (!location) {
-          return res.status(400).send("Location is required.");
+      
+      if (!location || !location.coordinates || location.coordinates.length !== 2) {
+        return res.status(400).send("Location with valid coordinates (longitude, latitude) is required in the format: { type: 'Point', coordinates: [longitude, latitude] }.");
+      }
+
+      const { coordinates } = location;
+      const [longitude, latitude] = coordinates;  
+
+      
+      if (longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
+        return res.status(400).send("Invalid longitude or latitude values.");
       }
 
       const userId = req.params.userId;
@@ -22,6 +31,7 @@ router.post("/register/:userId", isLoggedIn,async (req, res) => {
           return res.status(404).json({ error: "User not found." });
       }
 
+    
       const mentor = await mentorModel.create({
           user,
           profilePic,
@@ -29,9 +39,13 @@ router.post("/register/:userId", isLoggedIn,async (req, res) => {
           subjects,
           hourlyRate,
           bio,
-          location,
+          location: {
+              type: "Point", 
+              coordinates: [longitude, latitude] 
+          },
       });
 
+      
       const newMentor = await mentorModel.findById(mentor._id).populate("user");
 
       return res.status(201).json({
@@ -40,8 +54,8 @@ router.post("/register/:userId", isLoggedIn,async (req, res) => {
       });
 
   } catch (err) {
-      console.error("Error in /register/:userId route:", err); 
-      return res.status(500).json({ message:err.message });
+      console.error("Error in /register/:userId route:", err);
+      return res.status(500).json({ message: err.message });
   }
 });
 
@@ -61,14 +75,25 @@ router.post("/register/:userId", isLoggedIn,async (req, res) => {
       }
   
   });
-
   router.get("/mentors", async (req, res) => {
     try {
-        const { location } = req.query;
-        let filter = {};
+      const { longitude, latitude, radius } = req.query;
 
-        if (location) {
-            filter.location = location; 
+      let filter = {};
+
+      // Check if longitude, latitude, and radius are provided
+      if (longitude && latitude) {
+          const location = {
+              type: "Point",
+              coordinates: [parseFloat(longitude), parseFloat(latitude)], // [longitude, latitude]
+          };
+
+          filter.location = {
+              $near: {
+                  $geometry: location, // Center point
+                  $maxDistance: radius ? parseInt(radius) : 5000, // Default radius 5km
+              }
+          };
         }
 
         const mentors = await mentorModel.find(filter).populate("user");
