@@ -33,9 +33,17 @@ const mentorSchema = new mongoose.Schema({
         comment: { type: String, required: true },
     }],
     location: {
-        type: String,
-        default: "",
+        type: {
+            type: String,
+            enum: ['Point'], 
+            required: true,
+        },
+        coordinates: {
+            type: [Number], 
+            required: true,
+        },
     },
+    
     dateAdded: {
         type: Date,
         default: Date.now,
