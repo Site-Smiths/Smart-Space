@@ -7,13 +7,6 @@ const { isLoggedIn } = require('../middleware/isLoggedIn');  // Assuming this is
 const { isMentor } = require('../middleware/isMentor');
 
 
-
-
-// router.get("/register/:userId", isLoggedIn, isMentor, async (req, res) => {
-//     const userId = req.params.userId;
-//     res.render("mentor-register", { userId });
-// });
-
 router.post("/register/:userId", isLoggedIn,async (req, res) => {
   try {
       const { profilePic, qualifications, subjects, hourlyRate, bio, location } = req.body;
@@ -30,7 +23,7 @@ router.post("/register/:userId", isLoggedIn,async (req, res) => {
       }
 
       const mentor = await mentorModel.create({
-          mentorId: userId,
+          user,
           profilePic,
           qualifications,
           subjects,

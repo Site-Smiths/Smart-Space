@@ -47,8 +47,8 @@ app.post("/register", async (req, res) => {
     bcrypt.genSalt(10, function (err, salt) {
       bcrypt.hash(password, salt, async function (err, hash) {
         user = await userModel.create({
-          name,
-          email,
+          name:name,
+          email:email,
           password: hash,
           role :role,
         });

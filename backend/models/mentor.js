@@ -23,11 +23,6 @@ const mentorSchema = new mongoose.Schema({
         type: Number,
         default: 300,
     },
-    // availability: {
-    //     type: Map,
-    //     of: String,
-    //     default: {},
-    // },
     bio: {
         type: String,
         default: "",
