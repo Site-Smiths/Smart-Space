@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-screen bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center">
+    <div class="bg-white w-4/5 h-4/5 shadow-xl rounded-lg flex overflow-hidden">
+        <!-- Left Section -->
+        <div class="w-1/2 relative bg-gradient-to-r from-indigo-700 to-blue-500 flex flex-col justify-center items-center text-white p-8">
+            <img src="https://img.freepik.com/free-vector/teacher-student-concept-illustration_114360-7935.jpg" alt="Illustration" class="absolute top-0 left-0 w-full h-full object-cover opacity-30">
+            <!-- <div class="relative z-10">
+                <h1 class="text-4xl font-bold mb-4">Join Us</h1>
+                <p class="text-lg mb-6">Create an account to access all features</p>
+                <p class="text-sm">www.signupnow.com</p>
+            </div> -->
+        </div>
+
+        <!-- Right Section -->
+        <div class="w-1/2 bg-white flex flex-col justify-center items-center p-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Sign Up</h2>
+            <form class="w-full max-w-sm">
+                <div class="mb-4">
+                    <label for="name" class="block text-gray-600 mb-2">Full Name</label>
+                    <input type="text" id="name" placeholder="Enter your full name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="mb-4">
+                    <label for="email" class="block text-gray-600 mb-2">Email Address</label>
+                    <input type="email" id="email" placeholder="Enter your email" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="block text-gray-600 mb-2">Password</label>
+                    <input type="password" id="password" placeholder="Create a password" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="block text-gray-600 mb-2">Password</label>
+                    <input type="password" id="password" placeholder="let's match your password" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 rounded-lg font-bold hover:opacity-90">Continue</button>
+            </form>
+            <p class="text-gray-600 mt-4">or Sign Up with Social Media</p>
+            <div class="flex flex-col w-full max-w-sm gap-3 mt-4">
+             
+                <button class="flex items-center justify-center w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:opacity-90">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-5 h-5 mr-2" viewBox="0 0 24 24"><path d="M23.998 12.004C24 5.372 18.627 0 12 0S0 5.372 0 12.004c0 6.046 4.43 11.056 10.229 11.952V14.79H7.076v-2.786h3.153V9.52c0-3.112 1.83-4.824 4.635-4.824 1.346 0 2.75.242 2.75.242v3.002h-1.55c-1.529 0-2.004.954-2.004 1.93v2.32h3.41l-.545 2.786h-2.865v9.166c5.8-.896 10.23-5.906 10.23-11.952z"/></svg>
+                    Sign up with Facebook
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
