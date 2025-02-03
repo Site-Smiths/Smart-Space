@@ -1,14 +1,14 @@
-const mongoose = require('mongoose')
-const config = require('config')
+const mongoose = require('mongoose');
 
+const DB_URI = 'mongodb+srv://sitesmiths:12345@devjam1.fe87g.mongodb.net/';
 
+mongoose.connect(DB_URI)
+  .then(() => {
+    console.log('Connected to MongoDB Atlas successfully');
+  })
+  .catch((err) => {
+    console.error('Connection error:', err);
+  });
 
-mongoose.connect('mongodb://127.0.0.1:27017/SmartSpace')
-.then(() => {
-   console.log('Connected')
-})  
-.catch((err) => {
-    console.log(err)
-})   
 
 module.exports = mongoose.connection;
