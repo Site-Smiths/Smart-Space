@@ -3,7 +3,9 @@ const studentModel = require('./user');
 
 const studentSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId,
-     ref: 'user' },
+     ref: 'user',
+     required: true
+   },
   courses: [
     {
       courseName: String,

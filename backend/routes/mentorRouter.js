@@ -69,4 +69,30 @@ router.post("/register/:userId", isLoggedIn,async (req, res) => {
   
   });
 
+  router.get("/mentors", async (req, res) => {
+    try {
+        const { location } = req.query;
+        let filter = {};
+
+        if (location) {
+            filter.location = location; 
+        }
+
+        const mentors = await mentorModel.find(filter).populate("user");
+
+        if (mentors.length === 0) {
+            return res.status(404).json({ message: "No mentors found" });
+        }
+
+        res.status(200).json({ mentors });
+
+    } catch (err) {
+        console.error("Error fetching mentors:", err);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+
+
+
 module.exports = router;

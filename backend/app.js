@@ -50,7 +50,7 @@ app.post("/register", async (req, res) => {
           name,
           email,
           password: hash,
-          role,
+          role :role,
         });
 
         let token = jwt.sign({ email: email, userid: user._id, role: role }, jwtSecret);
