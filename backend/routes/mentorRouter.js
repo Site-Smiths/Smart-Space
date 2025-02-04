@@ -3,7 +3,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const userModel = require('../models/user');
 const mentorModel = require('../models/mentor');
-const { isLoggedIn } = require('../middleware/isLoggedIn');  // Assuming this is the correct path to your middleware
+const { isLoggedIn } = require('../middleware/isLoggedIn');
 const { isMentor } = require('../middleware/isMentor');
 
 
@@ -58,6 +58,40 @@ router.post("/register/:userId", isLoggedIn, async (req, res) => {
       return res.status(500).json({ message: err.message });
   }
 });
+router.post('/mentors/:mentorId/reviews', isLoggedIn, async (req, res) => {
+  try {
+    const { mentorId } = req.params;
+    const { reviewText, rating } = req.body;
+
+    if (!reviewText || !rating) {
+      return res.status(400).json({ message: 'Review text and rating are required.' });
+    }
+
+    
+    const student = await studentModel.findById(req.user.userid);
+    if (!student) {
+      return res.status(403).json({ message: 'Only students can leave reviews.' });
+    }
+
+  
+    const mentor = await mentorModel.findById(mentorId);
+    if (!mentor) return res.status(404).json({ message: 'Mentor not found.' });
+
+    const review = {
+      reviewer: student._id,
+      reviewText,
+      rating,
+    };
+
+    mentor.reviews.push(review);
+    await mentor.save();
+
+    res.status(201).json({ message: 'Review added successfully', mentor });
+  } catch (err) {
+    console.error('Error adding review:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 
   
@@ -81,17 +115,17 @@ router.post("/register/:userId", isLoggedIn, async (req, res) => {
 
       let filter = {};
 
-      // Check if longitude, latitude, and radius are provided
+      
       if (longitude && latitude) {
           const location = {
               type: "Point",
-              coordinates: [parseFloat(longitude), parseFloat(latitude)], // [longitude, latitude]
+              coordinates: [parseFloat(longitude), parseFloat(latitude)], 
           };
 
           filter.location = {
               $near: {
-                  $geometry: location, // Center point
-                  $maxDistance: radius ? parseInt(radius) : 5000, // Default radius 5km
+                  $geometry: location, 
+                  $maxDistance: radius ? parseInt(radius) : 5000, 
               }
           };
         }
