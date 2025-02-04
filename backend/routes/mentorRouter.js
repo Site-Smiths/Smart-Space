@@ -62,6 +62,40 @@ router.post("/register/:userId", isLoggedIn,upload.single("profilePic"), async (
       return res.status(500).json({ message: err.message });
   }
 });
+router.post('/mentors/:mentorId/reviews', isLoggedIn, async (req, res) => {
+  try {
+    const { mentorId } = req.params;
+    const { reviewText, rating } = req.body;
+
+    if (!reviewText || !rating) {
+      return res.status(400).json({ message: 'Review text and rating are required.' });
+    }
+
+    
+    const student = await studentModel.findById(req.user.userid);
+    if (!student) {
+      return res.status(403).json({ message: 'Only students can leave reviews.' });
+    }
+
+  
+    const mentor = await mentorModel.findById(mentorId);
+    if (!mentor) return res.status(404).json({ message: 'Mentor not found.' });
+
+    const review = {
+      reviewer: student._id,
+      reviewText,
+      rating,
+    };
+
+    mentor.reviews.push(review);
+    await mentor.save();
+
+    res.status(201).json({ message: 'Review added successfully', mentor });
+  } catch (err) {
+    console.error('Error adding review:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 
   
@@ -87,6 +121,7 @@ router.post("/register/:userId", isLoggedIn,upload.single("profilePic"), async (
 
       let filter = {};
 
+      
       if (longitude && latitude) {
           const location = {
               type: "Point",
@@ -95,7 +130,7 @@ router.post("/register/:userId", isLoggedIn,upload.single("profilePic"), async (
 
           filter.location = {
               $near: {
-                  $geometry: location,
+                  $geometry: location, 
                   $maxDistance: radius ? parseInt(radius) : 5000, 
               }
           };
