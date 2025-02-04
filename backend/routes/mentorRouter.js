@@ -3,13 +3,15 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const userModel = require('../models/user');
 const mentorModel = require('../models/mentor');
-const { isLoggedIn } = require('../middleware/isLoggedIn');  // Assuming this is the correct path to your middleware
+const { isLoggedIn } = require('../middleware/isLoggedIn');
 const { isMentor } = require('../middleware/isMentor');
+const upload = require('../config/multerconfig')
+const cloudinary = require("../config/cloudinary");
 
 
-router.post("/register/:userId", isLoggedIn, async (req, res) => {
+router.post("/register/:userId", isLoggedIn,upload.single("profilePic"), async (req, res) => {
   try {
-      const { profilePic, qualifications, subjects, hourlyRate, bio, location } = req.body;
+      const { qualifications, subjects, hourlyRate, bio, location } = req.body;
 
       
       if (!location || !location.coordinates || location.coordinates.length !== 2) {
@@ -30,11 +32,13 @@ router.post("/register/:userId", isLoggedIn, async (req, res) => {
       if (!user) {
           return res.status(404).json({ error: "User not found." });
       }
-
-    
+      if (!req.file) {
+        return res.status(400).send("No profile picture uploaded.");
+      }
+      const imageUrl = req.file.path;
       const mentor = await mentorModel.create({
           user,
-          profilePic,
+          profilePic:imageUrl,
           qualifications,
           subjects,
           hourlyRate,
@@ -75,23 +79,24 @@ router.post("/register/:userId", isLoggedIn, async (req, res) => {
       }
   
   });
+
+  
   router.get("/mentors", async (req, res) => {
     try {
       const { longitude, latitude, radius } = req.query;
 
       let filter = {};
 
-      // Check if longitude, latitude, and radius are provided
       if (longitude && latitude) {
           const location = {
               type: "Point",
-              coordinates: [parseFloat(longitude), parseFloat(latitude)], // [longitude, latitude]
+              coordinates: [parseFloat(longitude), parseFloat(latitude)], 
           };
 
           filter.location = {
               $near: {
-                  $geometry: location, // Center point
-                  $maxDistance: radius ? parseInt(radius) : 5000, // Default radius 5km
+                  $geometry: location,
+                  $maxDistance: radius ? parseInt(radius) : 5000, 
               }
           };
         }

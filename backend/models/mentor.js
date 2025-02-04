@@ -8,8 +8,8 @@ const mentorSchema = new mongoose.Schema({
         required: true
     },
     profilePic: {
-        type: String,
-        default: "default-profile-pic.jpg",
+        type:String,
+        required: true,
     },
     qualifications: { 
         type: [String], 

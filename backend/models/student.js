@@ -13,10 +13,9 @@ const studentSchema = new mongoose.Schema({
     }
   ],
   
-  
   reviews: [
     {
-      mentor: { type: mongoose.Schema.Types.ObjectId, ref: 'Mentor' }, 
+      mentor: { type: mongoose.Schema.Types.ObjectId, ref: 'mentor' }, 
       content: { type: String, required: true }, 
       rating: { type: Number, min: 1, max: 5, default: 5 }, 
       date: { type: Date, default: Date.now } 

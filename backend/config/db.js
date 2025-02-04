@@ -1,13 +1,14 @@
 const mongoose = require('mongoose');
 
 const DB_URI = 'mongodb+srv://sitesmiths:12345@devjam1.fe87g.mongodb.net/';
+const dbgr=require("debug")("development:mongoose")
 
 mongoose.connect(DB_URI)
   .then(() => {
-    console.log('Connected to MongoDB Atlas successfully');
+   dbgr('Connected to MongoDB Atlas successfully');
   })
   .catch((err) => {
-    console.error('Connection error:', err);
+   dbgr('Connection error:', err);
   });
 
 

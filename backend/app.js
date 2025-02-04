@@ -48,7 +48,7 @@ app.post("/register", async (req, res) => {
       bcrypt.hash(password, salt, async function (err, hash) {
         user = await userModel.create({
           name:name,
-          email:email,
+          email,
           password: hash,
           role :role,
         });
