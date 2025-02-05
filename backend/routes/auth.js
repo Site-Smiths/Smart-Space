@@ -52,15 +52,17 @@ router.post("/register", async (req, res) => {
 });
 
 
-router.post('/login', async (req, res) => {
+router.post('/login',async (req, res) => {
     
   let {email,password,role}=req.body
+  
+  
   let user = await userModel.findOne({email});
+  
   if(!user)return res.send("something went wrong");
   bcrypt.compare(password, user.password, async function(err, result) {
     if(result){
       let token = jwt.sign({email:email, userid:user._id,role:role},jwtSecret)
-
       if (role === "mentor") {
         let mentor = await mentorModel.findOne({ user: user._id });
         if (!mentor) {
@@ -74,7 +76,7 @@ router.post('/login', async (req, res) => {
       res.cookie('token', token).status(200).json({ message: "Login successful",
          token,
         role,
-      redirectTo: role === "student" ? "/student/profile" : `/mentor/profile/${user._id}`});
+      redirectTo: role === "student" ? `/student/profile/${user._id}` : `/mentor/profile/${user._id}`});
      }
     else
      {

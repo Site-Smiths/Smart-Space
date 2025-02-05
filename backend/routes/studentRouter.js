@@ -2,16 +2,87 @@ const express = require('express');
 const router = express.Router();
 const studentModel = require('../models/student');
 const mentorModel = require('../models/mentor');
+const userModel = require('../models/user');
 const { isLoggedIn } = require('../middleware/isLoggedIn');
 
 
-router.get('/profile', async (req, res) => {
+router.get('/profile/:studentId',isLoggedIn, async (req, res) => {
   try {
-    const student = await studentModel.findOne({ user: req.user.userid })
+    const studentId = req.params.studentId;
+    const student = await studentModel.findById(studentId)
     if (!student) return res.status(404).send('Student not found');
     res.json(student);
   } catch (err) {
     res.status(500).send(err.message);
+  }
+});
+
+router.post('/:studentId/:mentorId/reviews',isLoggedIn, async (req, res) => {
+  try {
+    const { studentId,mentorId } = req.params;
+    const { reviewText, 
+      rating } = req.body;
+
+    if (!reviewText || !rating) {
+      return res.status(400).json({ message: 'Review text and rating are required.' });
+    }
+    const student = await studentModel.findOne({ user: req.user.userId });
+    if (!student || student._id.toString() !== studentId) {
+      return res.status(403).json({ message: 'Only the logged-in student can leave reviews.' });
+    }
+
+     
+
+  
+    const mentor = await mentorModel.findById(mentorId);
+    if (!mentor) return res.status(404).json({ message: 'Mentor not found.' });
+
+    const review = {
+      reviewer: studentId,
+      reviewText,
+      rating,
+    };
+
+    student.reviews.push(review);
+    await student.save();
+
+    res.status(201).json({ message: 'Review added successfully', mentor });
+  } catch (err) {
+    console.error('Error adding review:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.post("/register/:userId", isLoggedIn, async (req, res) => {
+  try {
+    const { subject } = req.body;
+
+    const userId = req.params.userId;
+    const user = await userModel.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    if (user.role !== "student") {
+      return res.status(400).json({ error: "User must have a role of 'student' to register." });
+    }
+      const student = await studentModel.create({
+          user,
+          subject,
+      });
+
+      
+      const newStudent = await studentModel.findById(student._id).populate("user");
+
+      return res.status(201).json({
+          message: "Student registered successfully",
+          student: newStudent,
+      });
+
+  } catch (err) {
+      console.error("Error in /register/:userId route:", err);
+      return res.status(500).json({ message: err.message });
   }
 });
 
