@@ -89,6 +89,30 @@ router.post("/register/:userId", isLoggedIn, async (req, res) => {
       return res.status(500).json({ message: err.message });
   }
 });
+router.put('/update/:studentId', async (req, res) => {
+  const { studentId } = req.params;
+  const updateData = req.body;
+
+  try {
+    const updatedStudent = await studentModel.findByIdAndUpdate(
+      studentId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedStudent) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    res.status(200).json({
+      message: 'Student updated successfully',
+      student: updatedStudent
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 
 
 router.get("/mentors", async (req, res) => {
