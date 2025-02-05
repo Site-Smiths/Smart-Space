@@ -81,6 +81,60 @@ router.post("/register/:userId", isLoggedIn,upload.single("profilePic"), async (
   
   });
 
+  router.put("/profile/:mentorId", isLoggedIn, upload.single("profilePic"), async (req, res) => {
+    try {
+      const { mentorId } = req.params;
+      const { qualifications, subjects, hourlyRate, bio, location } = req.body;
+  
+      let updateFields = {};
+  
+      const mentor = await mentorModel.findById(mentorId);
+      if (!mentor) {
+        return res.status(404).json({ message: "Mentor not found" });
+      }
+  
+      if (mentor.user.toString() !== req.user.userId) {
+        return res.status(403).json({ message: "Unauthorized to update this profile" });
+      }
+  
+      if (req.file) {
+        updateFields.profilePic = req.file.path;
+      }
+  
+      if (qualifications) updateFields.qualifications = qualifications;
+      if (subjects) updateFields.subjects = subjects;
+      if (hourlyRate) updateFields.hourlyRate = hourlyRate;
+      if (bio) updateFields.bio = bio;
+  
+      if (location && location.coordinates && location.coordinates.length === 2) {
+        const [longitude, latitude] = location.coordinates;
+        if (longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
+          return res.status(400).send("Invalid longitude or latitude values.");
+        }
+        updateFields.location = {
+          type: "Point",
+          coordinates: [longitude, latitude],
+        };
+      }
+  
+      const updatedMentor = await mentorModel.findByIdAndUpdate(
+        mentorId,
+        { $set: updateFields },
+        { new: true }
+      ).populate("user");
+  
+      res.status(200).json({
+        message: "Mentor profile updated successfully",
+        mentor: updatedMentor,
+      });
+  
+    } catch (err) {
+      console.error("Error updating mentor profile:", err);
+      res.status(500).json({ message: err.message });
+    }
+  });
+  
+
   
   router.get("/mentors", async (req, res) => {
     try {

@@ -31,11 +31,13 @@ router.post('/:studentId/:mentorId/reviews',isLoggedIn, async (req, res) => {
       return res.status(403).json({ message: 'Only the logged-in student can leave reviews.' });
     }
 
-     
-
-  
     const mentor = await mentorModel.findById(mentorId);
     if (!mentor) return res.status(404).json({ message: 'Mentor not found.' });
+    
+    const existingReview = mentor.reviews.find(review => review.reviewer.toString() === studentId);
+    if (existingReview) {
+      return res.status(400).json({ message: 'You have already reviewed this mentor.' });
+    }
 
     const review = {
       reviewer: studentId,
@@ -45,6 +47,8 @@ router.post('/:studentId/:mentorId/reviews',isLoggedIn, async (req, res) => {
 
     student.reviews.push(review);
     await student.save();
+    mentor.reviews.push(review);
+    await mentor.save();
 
     res.status(201).json({ message: 'Review added successfully', mentor });
   } catch (err) {
