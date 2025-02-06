@@ -5,13 +5,13 @@ const db = require("../config/db");
 const userModel = require("../models/user");
 const mentorModel = require("../models/mentor");
 const studentModel = require("../models/student");
-
+require('dotenv').config();
 const jwt = require("jsonwebtoken");
 const jwtSecret = "myverysec";
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const path = require("path");
-
+const { sendVerificationEmail } = require("../utils/nodemailer");
 const  mentorRouter = require('./mentorRouter');
 const studentRouter = require('./studentRouter');
 
@@ -31,25 +31,53 @@ router.post("/register", async (req, res) => {
 
     let user = await userModel.findOne({ email });
     if (user) return res.status(400).json({ message: "User already exists" });
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    bcrypt.genSalt(10, function (err, salt) {
-      bcrypt.hash(password, salt, async function (err, hash) {
-        user = await userModel.create({
-          name:name,
-          email,
-          password: hash,
-          role :role,
-        });
 
-        let token = jwt.sign({ email: email, userid: user._id, role: role }, jwtSecret);
-        res.status(201).cookie("token", token).json({ message: "User registered successfully", user ,token});       //201 means request was succesful
-      });
-    });
+
+    let token = jwt.sign({ name:name,email:email,password:hashedPassword, role: role }, jwtSecret);
+        
+    
+  
+    //console.log(token);
+    
+    await sendVerificationEmail(email, token);
+    res.status(200).json({ message: "Verification email sent. Please check your inbox." });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ message: "Something went wrong during registration" });      //500 means something went wrong on the server side
   }
 });
+router.get("/verify-email/:token", async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const decoded = jwt.verify(token, jwtSecret);
+    const { name, email, password, role } = decoded;
+
+    const existingUser = await userModel.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already verified or exists." });
+    }
+
+    const user = await userModel.create({
+      name,
+      email,
+      password,
+      role,
+      isVerified: true,
+    });
+
+    res.status(201).json({ message: "Email verified successfully. User registered." });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: "Invalid or expired token." });
+  }
+});
+
+module.exports = router;
+
 
 
 router.post('/login',async (req, res) => {
