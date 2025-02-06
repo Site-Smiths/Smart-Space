@@ -15,6 +15,9 @@ function isLoggedIn(req, res, next) {
     if (!user) {
       return res.status(401).send("Unauthorized: User not found");
     }
+    if (!user.isVerified) {
+      return res.status(403).json({ message: "Email verification required" });
+    }
     next();
   });
 } 
