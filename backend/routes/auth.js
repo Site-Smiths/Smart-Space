@@ -101,6 +101,9 @@ router.post('/login',async (req, res) => {
           });
         }
       }
+      if (!user.isVerified) {
+        return res.status(403).json({ message: "Email not verified. Please check your inbox." });
+      }
       res.cookie('token', token).status(200).json({ message: "Login successful",
          token,
         role,
