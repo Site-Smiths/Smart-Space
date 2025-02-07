@@ -91,16 +91,6 @@ router.post('/login',async (req, res) => {
   bcrypt.compare(password, user.password, async function(err, result) {
     if(result){
       let token = jwt.sign({email:email, userid:user._id,role:role},jwtSecret)
-      if (role === "mentor") {
-        let mentor = await mentorModel.findOne({ user: user._id });
-        if (!mentor) {
-          return res.status(200).json({
-            userid:user._id,
-            message: "Please complete your registration.",
-            redirectTo: "/mentor/registration" 
-          });
-        }
-      }
       if (!user.isVerified) {
         return res.status(403).json({ message: "Email not verified. Please check your inbox." });
       }

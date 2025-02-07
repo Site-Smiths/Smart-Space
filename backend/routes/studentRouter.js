@@ -10,8 +10,11 @@ router.get('/profile/:studentId',isLoggedIn, async (req, res) => {
   try {
     const studentId = req.params.studentId;
     const student = await studentModel.findById(studentId)
+    let user = await userModel.findById(req.user.userId);
     if (!student) return res.status(404).send('Student not found');
-    res.json(student);
+    res.status(200).json({ studentData: student, userData: user });
+
+    
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -59,11 +62,12 @@ router.post('/:studentId/:mentorId/reviews',isLoggedIn, async (req, res) => {
 
 router.post("/register/:userId", isLoggedIn, async (req, res) => {
   try {
-    const { subject } = req.body;
+    
 
     const userId = req.params.userId;
     const user = await userModel.findById(userId).select("-password");
-
+    const check = await studentModel.findOne({user:userId});
+    if(check) return res.status(400).json({ message: "Student already exists" });
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }

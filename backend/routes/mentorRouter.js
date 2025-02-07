@@ -12,6 +12,8 @@ const cloudinary = require("../config/cloudinary");
 
 router.post("/register/:userId", isLoggedIn,upload.single("profilePic"), async (req, res) => {
   try {
+      const check = await mentorModel.findOne({user:userId});
+      if(check) return res.status(400).json({ message: "Mentor already exists" });
       const { qualifications, subjects, hourlyRate, bio, location } = req.body;
 
       
@@ -70,9 +72,9 @@ router.post("/register/:userId", isLoggedIn,upload.single("profilePic"), async (
     try{
       const mentorId = req.params.mentorId;
       const mentor = await mentorModel.findById(mentorId).populate("user");
-      
+      const user = await userModel.findById(req.user.userId);
       if (!mentor) return res.status(404).json({ message: "Mentor not found" });
-      res.status(200).json({ mentor });
+      res.status(200).json({ mentorData: mentor, userData: user });
       }
       catch(err){
         console.log("Error fetching mentor profile",err);
@@ -136,42 +138,48 @@ router.post("/register/:userId", isLoggedIn,upload.single("profilePic"), async (
   
 
   
-  router.get("/mentors", async (req, res) => {
+  router.get("/search", async (req, res) => {
     try {
-      const { longitude, latitude, radius } = req.query;
-
+      const { longitude, latitude, radius, subject } = req.query;
+  
       let filter = {};
-
-      
+  
+      // Location filter
       if (longitude && latitude) {
-          const location = {
-              type: "Point",
-              coordinates: [parseFloat(longitude), parseFloat(latitude)], 
-          };
-
-          filter.location = {
-              $near: {
-                  $geometry: location, 
-                  $maxDistance: radius ? parseInt(radius) : 5000, 
-              }
-          };
-        }
-
-        const mentors = await mentorModel.find(filter).populate("user");
-
-        if (mentors.length === 0) {
-            return res.status(404).json({ message: "No mentors found" });
-        }
-
-        res.status(200).json({ mentors });
-
+        const location = {
+          type: "Point",
+          coordinates: [parseFloat(longitude), parseFloat(latitude)],
+        };
+  
+        filter.location = {
+          $near: {
+            $geometry: location,
+            $maxDistance: radius ? parseInt(radius) : 5000,
+          },
+        };
+      }
+  
+      // Subject filter
+      if (subject) {
+        filter.subjects = subject.trim();
+      }
+  
+      const mentors = await mentorModel.find(filter).populate("user","name");
+  
+      if (mentors.length === 0) {
+        return res.status(404).json({ message: "No mentors found" });
+      }
+  
+      res.status(200).json({ mentors });
+  
     } catch (err) {
-        console.error("Error fetching mentors:", err);
-        res.status(500).json({ message: "Internal Server Error" });
+      console.error("Error fetching mentors:", err);
+      res.status(500).json({ message: "Internal Server Error" });
     }
-});
+  });
 
-
+  
+  
 
 
 module.exports = router;
