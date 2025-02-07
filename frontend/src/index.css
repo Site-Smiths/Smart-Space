@@ -2,6 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* body{
+body{
     background: radial-gradient(at 37.71551724137931% 33.541666666666664%, #d8dfe2 0px, transparent 50%), radial-gradient(at 8.081896551724139% 8.958333333333334%, #9013fe 0px, transparent 50%), radial-gradient(at 86.09913793103449% 42.083333333333336%, #fafafa 0px, transparent 50%), radial-gradient(at 89.76293103448276% 60.20833333333333%, #9013fe 0px, transparent 50%), radial-gradient(at 64.4396551724138% 26.25%, #4a90e2 0px, transparent 50%), #d8dfe2;
-} */
+}
