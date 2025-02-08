@@ -8,7 +8,7 @@ import ReviewSection from './ReviewSection';
 function Home() {
   return (
     <div className="min-h-screen ">
-      {/* Nav Section */}
+
       <nav className="   flex justify-between items-center p-4">
         <div className="text-2xl font-bold text-blue-600">SMARTSPACE</div>
         <div className="space-x-4 flex">
@@ -29,12 +29,12 @@ function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+   
       <HeroSection />
 
       <TopMentors />
 
-      {/* About Section */}
+  
       <About />
 
       <ReviewSection />
